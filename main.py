@@ -6,9 +6,9 @@ from PyQt6.QtCore import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 
-from view import ViewTab
-from train import TrainTab
-from test import TestTab
+from tabs.view import ViewTab
+from tabs.train import TrainTab
+from tabs.test import TestTab
 ##### IMPORTS #####\
 ##### CONSTANTS #####
 name = "FractureX"
