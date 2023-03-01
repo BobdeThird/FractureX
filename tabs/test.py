@@ -10,7 +10,7 @@ import io
 import urllib
 import requests
 
-
+from subprocess import run
 from ultralytics import YOLO
 
 
@@ -77,12 +77,19 @@ class TestTab(QWidget):
 
     def test(self):
         # load a custom model
-        model = YOLO("/Users/cadenli/Documents/FractureX-Dataset/best.pt")
-        model.conf_thres = 0.427
-        # with open("paths.yaml", "r") as f:
-        #     data = yaml.safe_load(f)
-        print(model.conf_thres)
+        # model = YOLO("/Users/cadenli/Documents/FractureX-Dataset/best.pt")
+        # model.conf_thres = 0.427
+        # # with open("paths.yaml", "r") as f:
+        # #     data = yaml.safe_load(f)
+        # print(model.conf_thres)
 
+
+        output_stream = run(["yolo task=detect mode=val model=/Users/cadenli/Documents/FractureX-Dataset/best.pt data=/Users/cadenli/Documents/FractureX-Dataset/data.yaml conf=0.427"], text=True, capture_output=True, shell=True)
+        
+        stringData = str(output_stream)
+
+        print(":SLFKJSDL:FDS:FKL:DJKFL:DSF")
+        print(stringData)
         # metrics = model.val(
         #     data="/Users/cadenli/Documents/FractureX-Dataset/data.yaml")
         # print(metrics)
