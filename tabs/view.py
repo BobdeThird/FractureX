@@ -54,7 +54,7 @@ class ViewTab(QWidget):
 
     def process(self):
         if self.storage != "":
-            model = YOLO("best.pt")  # load a custom model
+            model = YOLO("/Users/cadenli/Documents/FractureX-Dataset/best.pt")  # load a custom model
             
             results = model(self.storage)
             print("FINISHED")
