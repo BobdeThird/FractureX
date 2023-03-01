@@ -32,7 +32,7 @@ class TestTab(QWidget):
         super().__init__()
 
         self.setLayout(QGridLayout())
-        
+
         self.width = width
         self.height = height
 
@@ -43,13 +43,13 @@ class TestTab(QWidget):
         self.upload_button.clicked.connect(self.upload)
 
         self.upload_image = QLabel(self)
-        self.upload_image.setMaximumSize(int(width / 2 + 1), int(width / 2) + 1)
+        self.upload_image.setMaximumSize(
+            int(width / 2 + 1), int(width / 2) + 1)
         self.upload_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.test_button = QPushButton("Test", self)
         self.test_button.setFixedWidth(100)
         self.test_button.clicked.connect(self.test)
-  
 
         self.layout().addWidget(self.upload_button, 0, 0)
         self.layout().addWidget(self.upload_image, 2, 0)
@@ -83,9 +83,9 @@ class TestTab(QWidget):
         # #     data = yaml.safe_load(f)
         # print(model.conf_thres)
 
+        output_stream = run(["yolo task=detect mode=val model=/Users/cadenli/Documents/FractureX-Dataset/best.pt data=/Users/cadenli/Documents/FractureX-Dataset/data.yaml conf=0.427"],
+                            text=True, capture_output=True, shell=True)
 
-        output_stream = run(["yolo task=detect mode=val model=/Users/cadenli/Documents/FractureX-Dataset/best.pt data=/Users/cadenli/Documents/FractureX-Dataset/data.yaml conf=0.427"], text=True, capture_output=True, shell=True)
-        
         stringData = str(output_stream)
 
         print(":SLFKJSDL:FDS:FKL:DJKFL:DSF")
@@ -93,8 +93,6 @@ class TestTab(QWidget):
         # metrics = model.val(
         #     data="/Users/cadenli/Documents/FractureX-Dataset/data.yaml")
         # print(metrics)
-
-
 
         directory_path = "runs/detect"
         num = 0
@@ -106,8 +104,10 @@ class TestTab(QWidget):
                 if "val" in subdir and subdir != "val":
                     if int((subdir[3:])) > num:
                         num = int((subdir[3:]))
-            
-                
+
+        if num == 0:
+            num = ""
+
         image_path = directory_path + "/val" + str(num) + "/PR_curve.png"
 
         print(image_path)
@@ -118,7 +118,7 @@ class TestTab(QWidget):
         print(self.width, self.height)
         print(max_size)
         scaled_pixmap = pixmap.scaled(max_size,
-                                        Qt.AspectRatioMode.KeepAspectRatio,
-                                        Qt.TransformationMode.SmoothTransformation)
+                                      Qt.AspectRatioMode.KeepAspectRatio,
+                                      Qt.TransformationMode.SmoothTransformation)
         self.upload_image.setPixmap(scaled_pixmap)
         self.storage = image_path
