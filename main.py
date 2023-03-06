@@ -10,8 +10,8 @@ from tabs.test import TestTab
 
 
 name = "FractureX"
-width = 1500
-height = 900
+width = 900
+height = 800
 
 
 class WelcomeWindow(QDialog):
