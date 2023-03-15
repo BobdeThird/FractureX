@@ -15,61 +15,96 @@ class ViewTab(QWidget):
     def __init__(self, width, height):
         super().__init__()
 
-        self.setLayout(QGridLayout())
         self.width = width
         self.height = height
-        self.storage = ""
+        self.storage = "" # TODO: change storage into more descriptive (path of models??)
         self.style = 0
 
-        self.upload_button = QPushButton("Upload and Process", self)
-        self.upload_button.setFixedWidth(150)
-        self.upload_button.clicked.connect(self.upload)
-        # self.upload_button.setStyleSheet("background-color: rgb(47, 80, 97);")
-        self.upload_image = QLabel(self)
-        # self.upload_image.setStyleSheet("background-color: rgb(91, 91 91);")
-        self.upload_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.upload_image.setMaximumSize(
-            int(width / 3 + 1), int(width / 3) + 1)
+        # create a layout for the tab
+        layout = QGridLayout(self)
 
-        self.upload_image_list = [self.upload_image]
-        # self.scroll_area = QScrollArea()
-        # self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        # self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        # self.scroll_area.setWidgetResizable(True)
-        # self.scroll_widget = QWidget()
-        # self.scroll_widget.setLayout(QVBoxLayout())
-        # self.scroll_widget.layout().addWidget(self.scroll_area)
+        # Create a scroll area
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
 
-        self.process_image = QLabel(self)
-        # self.process_image.setStyleSheet("background-color: rgb(91, 91 91);")
-        self.process_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.process_image.setMaximumSize(
-            int(width / 3 + 1), int(width / 3) + 1)
-        
-        self.process_image_list = [self.process_image]
+        # Create a top layout for the buttons
+        top_layout = QHBoxLayout()
+        layout.addLayout(top_layout, 0, 0, 1, -1)
 
-        self.upload_style = QComboBox(self)
-        self.upload_style.addItem("Individual")
-        self.upload_style.addItem("Folder")
-        # self.upload_style.setStyleSheet("background-color: rgb(47, 80, 97);")
-        self.upload_style.setFixedWidth(100)
-        self.upload_style.currentIndexChanged.connect(self.onComboBoxChanged)
+        # Create combo boxes and buttons
+        combo_box_1 = QComboBox()
+        combo_box_1.addItems(["Individual", "Folder"])
+        combo_box_2 = QComboBox()
+        combo_box_2.addItems(["YoloV8v1", "YoloV8v2", "YoloV8v3"])
+        prev_button = QPushButton("Previous")
 
-        self.upload_model = QComboBox(self)
-        self.upload_model.addItem("YoloV8v1")
-        self.upload_model.addItem("YoloV8v2")
-        self.upload_model.addItem("YoloV8v3")
-        self.upload_model.addItem("YoloV5")
-        self.upload_model.addItem("detectron2v1")
-        # self.upload_style.setStyleSheet("background-color: rgb(47, 80, 97);")
-        self.upload_model.setFixedWidth(100)
+        # Add the buttons to the top layout
+        top_layout.addWidget(combo_box_1)
+        top_layout.addWidget(prev_button)
+        top_layout.addWidget(combo_box_2)
 
-        self.layout().addWidget(self.upload_button, 0, 1)
-        self.layout().addWidget(self.upload_style, 0, 0)
-        self.layout().addWidget(self.upload_model, 0, 2)
-        self.layout().addWidget(self.upload_image, 2, 0)
-        # self.layout().addWidget(self.scroll_widget, 2, 0)
-        self.layout().addWidget(self.process_image, 2, 3)
+         # Create a scroll area
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+
+        # Add a stylesheet to the scrollbar
+        scroll_area.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"
+                                                       "    border: none;"
+                                                       "    background: #f6f6f6;"
+                                                       "    width: 15px;"
+                                                       "    margin: 0px 0 0px 0;"
+                                                       "}"
+                                                       "QScrollBar::handle:vertical {"
+                                                       "    background: #a9a9a9;"
+                                                       "    border-radius: 7px;"
+                                                       "    min-height: 20px;"
+                                                       "}"
+                                                       "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
+                                                       "    background: none;"
+                                                       "}"
+                                                       "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+                                                       "    background: #dcdcdc;"
+                                                       "}")
+
+
+
+        # Create a widget to hold the images
+        images_widget = QWidget(scroll_area)
+        images_layout = QGridLayout(images_widget)
+        row, col = 0, 0
+
+        # Load all images in the folder
+        images_folder = "/Users/cadenli/Documents/FractureX-Dataset/chicken/"
+        for filename in os.listdir(images_folder):
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                if col != 1:
+                    image_path = os.path.join(images_folder, filename)
+
+                pixmap = QPixmap(image_path)
+                label = QLabel()
+                img_width = (self.width * .88) / 3
+                label.setPixmap(pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                images_layout.addWidget(label, row, col)
+
+                if col == 0:
+                    image_path2 = "/Users/cadenli/Desktop/FractureX/arrow.jpeg"
+                    pixmap2 = QPixmap(image_path2)
+                    label2 = QLabel()
+                    img_width2 = (self.width * .5) / 3
+                    label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                    label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    images_layout.addWidget(label2, row, col+1)
+
+                col += 2
+                if col == 2:
+                    col = 0
+                    row += 1
+
+        # Set the widget to the scroll area
+        scroll_area.setWidget(images_widget)
+
+        # Add the scroll area to the layout
+        layout.addWidget(scroll_area, 1, 0, -1, -1)
     
     def xywh2xyxy(self, x):
         # Convert bounding box (x, y, w, h) to bounding box (x1, y1, x2, y2)
@@ -100,6 +135,7 @@ class ViewTab(QWidget):
 
         return iou
 
+    # method to make sure that bounding boxes on the same object get removed
     def nms(self, boxes, scores, iou_threshold):
         # Sort by score
         sorted_indices = np.argsort(scores)[::-1]
@@ -123,6 +159,7 @@ class ViewTab(QWidget):
 
         return keep_boxes
     
+    # TODO: Find out how zip works, as well as reformat the cv2 stuff
     def plot_box(self, boxes, scores, class_ids, CLASSES, indices, image):
         for (bbox, score, label) in zip(self.xywh2xyxy(boxes[indices]), scores[indices], class_ids[indices]):
             bbox = bbox.round().astype(np.int32).tolist()
@@ -136,15 +173,16 @@ class ViewTab(QWidget):
                         0.60, [225, 255, 255],
                         thickness=1)
 
-            
 
 
+    # TODO: onCOmboBoxChange changed so that it works for the models too. change self.style to something more specific like self.currModel and self.currInputType (image / folder)
     def onComboBoxChanged(self, index):
         currentChoice = self.upload_style.currentText()
         if currentChoice == "Individual":
             self.style = 0
         else:
             self.style = 1
+
 
     def upload(self):
         if self.style == 0:
