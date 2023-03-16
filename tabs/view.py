@@ -21,34 +21,32 @@ class ViewTab(QWidget):
         self.style = 0
 
         # create a layout for the tab
-        layout = QGridLayout(self)
-
-        # Create a scroll area
-        scroll_area = QScrollArea(self)
-        scroll_area.setWidgetResizable(True)
+        self.layout = QGridLayout(self)
 
         # Create a top layout for the buttons
-        top_layout = QHBoxLayout()
-        layout.addLayout(top_layout, 0, 0, 1, -1)
+        self.top_layout = QHBoxLayout()
+        self.layout.addLayout(self.top_layout, 0, 0, 1, -1)
 
         # Create combo boxes and buttons
-        combo_box_1 = QComboBox()
-        combo_box_1.addItems(["Individual", "Folder"])
-        combo_box_2 = QComboBox()
-        combo_box_2.addItems(["YoloV8v1", "YoloV8v2", "YoloV8v3"])
-        prev_button = QPushButton("Previous")
+        self.combo_box_1 = QComboBox()
+        self.combo_box_1.addItems(["Individual", "Folder"])
+        self.combo_box_1.currentIndexChanged.connect(self.onComboBoxChanged)
+        self.combo_box_2 = QComboBox()
+        self.combo_box_2.addItems(["YoloV8v1", "YoloV8v2", "YoloV8v3"])
+        self.upload_button = QPushButton("Upload and Process")
+        self.upload_button.clicked.connect(self.upload)
 
         # Add the buttons to the top layout
-        top_layout.addWidget(combo_box_1)
-        top_layout.addWidget(prev_button)
-        top_layout.addWidget(combo_box_2)
+        self.top_layout.addWidget(self.combo_box_1)
+        self.top_layout.addWidget(self.upload_button)
+        self.top_layout.addWidget(self.combo_box_2)
 
          # Create a scroll area
-        scroll_area = QScrollArea(self)
-        scroll_area.setWidgetResizable(True)
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
 
         # Add a stylesheet to the scrollbar
-        scroll_area.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"
+        self.scroll_area.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"
                                                        "    border: none;"
                                                        "    background: #f6f6f6;"
                                                        "    width: 15px;"
@@ -69,42 +67,13 @@ class ViewTab(QWidget):
 
 
         # Create a widget to hold the images
-        images_widget = QWidget(scroll_area)
-        images_layout = QGridLayout(images_widget)
-        row, col = 0, 0
-
-        # Load all images in the folder
-        images_folder = "/Users/cadenli/Documents/FractureX-Dataset/chicken/"
-        for filename in os.listdir(images_folder):
-            if filename.endswith(".jpg") or filename.endswith(".png"):
-                if col != 1:
-                    image_path = os.path.join(images_folder, filename)
-
-                pixmap = QPixmap(image_path)
-                label = QLabel()
-                img_width = (self.width * .88) / 3
-                label.setPixmap(pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
-                images_layout.addWidget(label, row, col)
-
-                if col == 0:
-                    image_path2 = "/Users/cadenli/Desktop/FractureX/arrow.jpeg"
-                    pixmap2 = QPixmap(image_path2)
-                    label2 = QLabel()
-                    img_width2 = (self.width * .5) / 3
-                    label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
-                    label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                    images_layout.addWidget(label2, row, col+1)
-
-                col += 2
-                if col == 2:
-                    col = 0
-                    row += 1
+        self.images_widget = QWidget(self.scroll_area)
+        self.images_layout = QGridLayout(self.images_widget)
 
         # Set the widget to the scroll area
-        scroll_area.setWidget(images_widget)
-
+        self.scroll_area.setWidget(self.images_widget)
         # Add the scroll area to the layout
-        layout.addWidget(scroll_area, 1, 0, -1, -1)
+        self.layout.addWidget(self.scroll_area, 1, 0, -1, -1)
     
     def xywh2xyxy(self, x):
         # Convert bounding box (x, y, w, h) to bounding box (x1, y1, x2, y2)
@@ -177,7 +146,7 @@ class ViewTab(QWidget):
 
     # TODO: onCOmboBoxChange changed so that it works for the models too. change self.style to something more specific like self.currModel and self.currInputType (image / folder)
     def onComboBoxChanged(self, index):
-        currentChoice = self.upload_style.currentText()
+        currentChoice = self.combo_box_1.currentText()
         if currentChoice == "Individual":
             self.style = 0
         else:
@@ -185,6 +154,7 @@ class ViewTab(QWidget):
 
 
     def upload(self):
+        print(self.style)
         if self.style == 0:
             options = QFileDialog.Option.ReadOnly
             file_name, _ = QFileDialog.getOpenFileName(self,
@@ -204,29 +174,36 @@ class ViewTab(QWidget):
             options = QFileDialog.Option.ReadOnly
             folder_path = QFileDialog.getExistingDirectory(self, 'Select Folder')
             image_options = ['.png', '.xpm', '.jpg', 'jpeg', '.bmp']
-            numImages = len(os.listdir(folder_path)) 
-            scaled_pixmap = 0
+            row, col = 0, 0
 
-            for filename in os.listdir(folder_path):
-                f = os.path.join(folder_path, filename)
-                # checking if it is a file
-                if any(i in f for i in image_options):
-                    pixmap = QPixmap(f)
-                    curr_upload_image = QLabel(self)
-                    # self.process_image.setStyleSheet("background-color: rgb(91, 91 91);")
-                    curr_upload_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                    curr_upload_image.setMaximumSize(
-                        int(self.width / 3 + 1), int(self.width / 3) + 1)
-                    
-                    curr_upload_image.setPixmap(pixmap)
-                    max_size = QSize(int(self.width/2) + 1, int(self.height/2) + 1)
-                    scaled_pixmap = pixmap.scaled(max_size,
-                                                Qt.AspectRatioMode.KeepAspectRatio,
-                                                Qt.TransformationMode.SmoothTransformation)
-                    curr_upload_image.setPixmap(scaled_pixmap)
-                    self.storage = f
-                    print(self.storage)
+            # Load all images in the folder
+            images_folder = folder_path
+            for filename in os.listdir(images_folder):
+                if filename.endswith(tuple(image_options)):
+                    image_path = os.path.join(images_folder, filename)
+
+                    pixmap = QPixmap(image_path)
+                    label = QLabel()
+                    img_width = (self.width * .88) / 3
+                    label.setPixmap(pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                    self.images_layout.addWidget(label, row, col)
+                    self.storage = image_path
                     self.process()
+
+                    if col == 0:
+                        image_path2 = "arrow.png"
+                        pixmap2 = QPixmap(image_path2)
+                        label2 = QLabel()
+                        img_width2 = (self.width * .88) / 3
+                        label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                        label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                        self.images_layout.addWidget(label2, row, col+1)
+
+                    col += 2
+                    if col == 2:
+                        col = 0
+                        row += 1
+
 
 
             
@@ -330,70 +307,8 @@ class ViewTab(QWidget):
             scaled_pixmap = pixmap.scaled(max_size,
                                           Qt.AspectRatioMode.KeepAspectRatio,
                                           Qt.TransformationMode.SmoothTransformation)
+            self.process_image = QLabel()
             self.process_image.setPixmap(scaled_pixmap)
-        elif self.storage != "" and self.style == 1:
-            numImages = len(os.listdir(self.storage)) 
-            scaled_pixmap = 0
-            for filename in os.listdir(self.storage):
-                f = os.path.join(self.storage, filename)
-                # checking if it is a file
-                if any(i in f for i in image_options):
-                    image_path = f
-                    image = cv2.imread(image_path)
-                    image_height, image_width = image.shape[:2]
-                    #print(image_height, image_width)
-                    Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-                    size = max(input_shape[2:])
-                    
-                    input_height, input_width = size, size
-                    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                    resized = cv2.resize(image_rgb, (input_width, input_height))
-                    # Scale input pixel value to 0 to 1
-                    input_image = resized / 255.0
-                    input_image = input_image.transpose(2,0,1)
-                    input_tensor = input_image[np.newaxis, :, :, :].astype(np.float32)
-
-                    outputs = ort_session.run(output_names, {input_names[0]: input_tensor})[0]
-
-                    predictions = np.squeeze(outputs).T
-                    conf_thresold = 0.42
-                    # Filter out object confidence scores below threshold
-                    scores = np.max(predictions[:, 4:], axis=1)
-                    #print(predictions)
-
-                    predictions = predictions[scores > conf_thresold, :]
-                    #print(predictions)
-
-                    scores = scores[scores > conf_thresold]  
-
-                    # Get the class with the highest confidence
-                    class_ids = np.argmax(predictions[:, 4:], axis=1)
-
-                    # Get bounding boxes for each object
-                    boxes = predictions[:, :4]
-
-                    #rescale box
-                    input_shape = np.array([input_width, input_height, input_width, input_height])
-                    boxes = np.divide(boxes, input_shape, dtype=np.float32)
-                    boxes *= np.array([image_width, image_height, image_width, image_height])
-                    boxes = boxes.astype(np.int32)
-
-                    indices = self.nms(boxes, scores, 0.4)
-
-                    CLASSES = ['fracture']
-
-                    self.plot_box(boxes, scores, class_ids, CLASSES, indices, image)
-
-                    height, width, channel = image.shape
-                    bytes_per_line = 3 * width
-                    qimage = QImage(image.data, width, height,
-                                    bytes_per_line, QImage.Format.Format_RGB888)
-                    pixmap = QPixmap(qimage)
-                    max_size = QSize(int(self.width/(numImages + 1)) + 1, int(self.height/(numImages + 1)) + 1)
-                    scaled_pixmap = pixmap.scaled(max_size,
-                                                Qt.AspectRatioMode.KeepAspectRatio,
-                                                Qt.TransformationMode.SmoothTransformation)
-                    
-                    self.process_image.setPixmap(scaled_pixmap)        
+           
 
 
