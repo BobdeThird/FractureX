@@ -17,7 +17,7 @@ class ImageTab(QWidget):
         layout.addLayout(top_layout, 0, 0, 1, -1)
 
         # Create two buttons
-         # Create two combo boxes
+        # Create two combo boxes
         combo_box_1 = QComboBox()
         combo_box_1.addItems(["Option 1", "Option 2", "Option 3"])
         combo_box_2 = QComboBox()

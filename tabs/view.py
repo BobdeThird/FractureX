@@ -45,6 +45,9 @@ class ViewTab(QWidget):
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setWidgetResizable(True)
 
+        self.upload_image = QLabel(self)
+        self.process_image = QLabel(self)
+
         # Add a stylesheet to the scrollbar
         self.scroll_area.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"
                                                        "    border: none;"
@@ -168,8 +171,13 @@ class ViewTab(QWidget):
                                               Qt.AspectRatioMode.KeepAspectRatio,
                                               Qt.TransformationMode.SmoothTransformation)
                 self.upload_image.setPixmap(scaled_pixmap)
+                self.images_layout.addWidget(self.upload_image, 0, 0)
                 self.storage = file_name
-                self.process()
+                scaled_pixmap = self.process()
+                self.process_image = QLabel()
+                self.process_image.setPixmap(scaled_pixmap)
+                self.images_layout.addWidget(self.process_image, 1, 1)
+
         else:
             options = QFileDialog.Option.ReadOnly
             folder_path = QFileDialog.getExistingDirectory(self, 'Select Folder')
@@ -190,14 +198,19 @@ class ViewTab(QWidget):
                     self.storage = image_path
                     self.process()
 
-                    if col == 0:
-                        image_path2 = "arrow.png"
-                        pixmap2 = QPixmap(image_path2)
-                        label2 = QLabel()
-                        img_width2 = (self.width * .88) / 3
-                        label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
-                        label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                        self.images_layout.addWidget(label2, row, col+1)
+                    image_path2 = "arrow.png"
+                    pixmap2 = QPixmap(image_path2)
+                    label2 = QLabel()
+                    img_width2 = (self.width * .88) / 3
+                    label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                    label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    self.images_layout.addWidget(label2, row, col+1)
+
+                    scaled_pixmap = self.process()
+                    self.process_image = QLabel()
+                    self.process_image.setPixmap(scaled_pixmap)
+                    self.images_layout.addWidget(self.process_image, row, 2)
+
 
                     col += 2
                     if col == 2:
@@ -270,7 +283,7 @@ class ViewTab(QWidget):
             outputs = ort_session.run(output_names, {input_names[0]: input_tensor})[0]
 
             predictions = np.squeeze(outputs).T
-            conf_thresold = 0.42
+            conf_thresold = 0.2
             # Filter out object confidence scores below threshold
             scores = np.max(predictions[:, 4:], axis=1)
             #print(predictions)
@@ -307,8 +320,9 @@ class ViewTab(QWidget):
             scaled_pixmap = pixmap.scaled(max_size,
                                           Qt.AspectRatioMode.KeepAspectRatio,
                                           Qt.TransformationMode.SmoothTransformation)
-            self.process_image = QLabel()
-            self.process_image.setPixmap(scaled_pixmap)
+            return scaled_pixmap
+            #self.images_layout.addWidget(self.process_image, row, 2)
+
            
 
 
