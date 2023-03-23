@@ -157,6 +157,7 @@ class ViewTab(QWidget):
 
 
     def upload(self):
+        self.process_image.clear()
         print(self.style)
         if self.style == 0:
             options = QFileDialog.Option.ReadOnly
@@ -208,7 +209,7 @@ class ViewTab(QWidget):
 
                     scaled_pixmap = self.process()
                     self.process_image = QLabel()
-                    self.process_image.setPixmap(scaled_pixmap)
+                    self.process_image.setPixmap(scaled_pixmap.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
                     self.images_layout.addWidget(self.process_image, row, 2)
 
 

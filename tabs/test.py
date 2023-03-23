@@ -118,10 +118,6 @@ class TestTab(QWidget):
         # print(metrics)
 
 
-
-
-
-
         directory_path = "runs/detect"
         num = 0
 
