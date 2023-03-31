@@ -48,6 +48,9 @@ class ViewTab(QWidget):
         self.upload_image = QLabel(self)
         self.process_image = QLabel(self)
 
+        self.label = QLabel()
+        self.label2 = QLabel()
+
         # Add a stylesheet to the scrollbar
         self.scroll_area.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"
                                                        "    border: none;"
@@ -77,6 +80,8 @@ class ViewTab(QWidget):
         self.scroll_area.setWidget(self.images_widget)
         # Add the scroll area to the layout
         self.layout.addWidget(self.scroll_area, 1, 0, -1, -1)
+
+
     
     def xywh2xyxy(self, x):
         # Convert bounding box (x, y, w, h) to bounding box (x1, y1, x2, y2)
@@ -142,8 +147,8 @@ class ViewTab(QWidget):
             cv2.putText(image,
                         f'{cls}:{int(score*100)}%', (bbox[0], bbox[1] - 2),
                         cv2.FONT_HERSHEY_SIMPLEX,
-                        0.60, [225, 255, 255],
-                        thickness=1)
+                        1.00, [225, 255, 255],
+                        thickness=2)
 
 
 
@@ -157,7 +162,21 @@ class ViewTab(QWidget):
 
 
     def upload(self):
-        self.process_image.clear()
+        # self.process_image.clear()
+        # self.upload_image.clear()
+        # self.label.clear()
+        # self.label2.clear()
+        # self.images_widget.deleteLater()
+
+        # Create a widget to hold the images
+        self.images_widget = QWidget(self.scroll_area)
+        self.images_layout = QGridLayout(self.images_widget)
+
+        # Set the widget to the scroll area
+        self.scroll_area.setWidget(self.images_widget)
+        # Add the scroll area to the layout
+        self.layout.addWidget(self.scroll_area, 1, 0, -1, -1)
+
         print(self.style)
         if self.style == 0:
             options = QFileDialog.Option.ReadOnly
@@ -167,23 +186,26 @@ class ViewTab(QWidget):
             if file_name:
                 pixmap = QPixmap(file_name)
                 self.upload_image.setPixmap(pixmap)
-                max_size = QSize(int(self.width/2) + 1, int(self.height/2) + 1)
+                max_size = QSize((int(self.width * .88) / 3), int(self.height))
                 scaled_pixmap = pixmap.scaled(max_size,
                                               Qt.AspectRatioMode.KeepAspectRatio,
                                               Qt.TransformationMode.SmoothTransformation)
+                
                 self.upload_image.setPixmap(scaled_pixmap)
                 self.images_layout.addWidget(self.upload_image, 0, 0)
                 self.storage = file_name
                 scaled_pixmap = self.process()
                 self.process_image = QLabel()
                 self.process_image.setPixmap(scaled_pixmap)
-                self.images_layout.addWidget(self.process_image, 1, 1)
+                self.images_layout.addWidget(self.process_image, 0, 1)
 
         else:
             options = QFileDialog.Option.ReadOnly
             folder_path = QFileDialog.getExistingDirectory(self, 'Select Folder')
             image_options = ['.png', '.xpm', '.jpg', 'jpeg', '.bmp']
             row, col = 0, 0
+            self.label= QLabel()
+            self.label2 = QLabel()
 
             # Load all images in the folder
             images_folder = folder_path
@@ -192,20 +214,20 @@ class ViewTab(QWidget):
                     image_path = os.path.join(images_folder, filename)
 
                     pixmap = QPixmap(image_path)
-                    label = QLabel()
+                    self.label = QLabel()
                     img_width = (self.width * .88) / 3
-                    label.setPixmap(pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
-                    self.images_layout.addWidget(label, row, col)
+                    self.label.setPixmap(pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                    self.images_layout.addWidget(self.label, row, col)
                     self.storage = image_path
                     self.process()
 
                     image_path2 = "arrow.png"
                     pixmap2 = QPixmap(image_path2)
-                    label2 = QLabel()
+                    self.label2 = QLabel()
                     img_width2 = (self.width * .88) / 3
-                    label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
-                    label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                    self.images_layout.addWidget(label2, row, col+1)
+                    self.label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                    self.label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    self.images_layout.addWidget(self.label2, row, col+1)
 
                     scaled_pixmap = self.process()
                     self.process_image = QLabel()
