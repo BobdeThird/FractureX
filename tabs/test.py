@@ -86,7 +86,7 @@ class TestTab(QWidget):
     def upload_model(self):
         options = QFileDialog.Option.ReadOnly
         self.model_name, _ = QFileDialog.getOpenFileName(self,
-               "QFileDialog.getOpenFileName()", "", "Models (*.pt *.pth);;All Files (*)",
+               "QFileDialog.getOpenFileName()", "", "Models (*.pt *.pth *.onnx);;All Files (*)",
                options=options)
         
 
