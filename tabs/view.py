@@ -176,6 +176,9 @@ class ViewTab(QWidget):
         self.scroll_area.setWidget(self.images_widget)
         # Add the scroll area to the layout
         self.layout.addWidget(self.scroll_area, 1, 0, -1, -1)
+        
+        self.upload_image = QLabel(self)
+        self.process_image = QLabel(self)
 
         print(self.style)
         if self.style == 0:
@@ -185,19 +188,23 @@ class ViewTab(QWidget):
                                                        options=options)
             if file_name:
                 pixmap = QPixmap(file_name)
-                self.upload_image.setPixmap(pixmap)
-                max_size = QSize((int(self.width * .88) / 3), int(self.height))
-                scaled_pixmap = pixmap.scaled(max_size,
-                                              Qt.AspectRatioMode.KeepAspectRatio,
-                                              Qt.TransformationMode.SmoothTransformation)
-                
-                self.upload_image.setPixmap(scaled_pixmap)
+                img_width = (self.width * .88) / 3
+                self.upload_image.setPixmap(pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
                 self.images_layout.addWidget(self.upload_image, 0, 0)
                 self.storage = file_name
+
+                image_path2 = "arrow.png"
+                pixmap2 = QPixmap(image_path2)
+                self.label2 = QLabel()
+                img_width2 = (self.width * .88) / 3
+                self.label2.setPixmap(pixmap2.scaled(QSize(int(img_width2), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                self.label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.images_layout.addWidget(self.label2, 0, 1)
+
                 scaled_pixmap = self.process()
                 self.process_image = QLabel()
-                self.process_image.setPixmap(scaled_pixmap)
-                self.images_layout.addWidget(self.process_image, 0, 1)
+                self.process_image.setPixmap(scaled_pixmap.scaled(QSize(int(img_width), 3000), Qt.AspectRatioMode.KeepAspectRatio))
+                self.images_layout.addWidget(self.process_image, 0, 2)
 
         else:
             options = QFileDialog.Option.ReadOnly
@@ -206,6 +213,9 @@ class ViewTab(QWidget):
             row, col = 0, 0
             self.label= QLabel()
             self.label2 = QLabel()
+
+            if folder_path == '':
+                return
 
             # Load all images in the folder
             images_folder = folder_path
