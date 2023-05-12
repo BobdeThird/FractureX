@@ -10,8 +10,8 @@ from tabs.test import TestTab
 
 
 name = "FractureX"
-width = 900
-height = 800
+width = 1152 #1728 #1920
+height = 720 #1080
 
 class MainWindow(QMainWindow):
  def __init__(self):
@@ -19,7 +19,8 @@ class MainWindow(QMainWindow):
 
 
      self.setWindowTitle(name)
-     self.setFixedSize(QSize(width, height))
+     self.resize(width, height)
+     #self.setFixedSize(QSize(width, height))
 
 
      tabs = QTabWidget()
